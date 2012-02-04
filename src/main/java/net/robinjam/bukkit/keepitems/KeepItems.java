@@ -47,7 +47,7 @@ public class KeepItems extends JavaPlugin implements Listener {
             death.drop();
         
         // Register the death event
-        deaths.put(player, new Death(player.getLocation(), event.getDrops(), player.getTotalExperience()));
+        deaths.put(player, new Death(player.getLocation(), event.getDrops(), calcExperience(player.getLevel() - 1)));
         
         // Don't drop any items
         event.getDrops().clear();
@@ -61,6 +61,11 @@ public class KeepItems extends JavaPlugin implements Listener {
         Death death = deaths.remove(player);
         if (death != null)
             death.drop(event.getRespawnLocation());
+    }
+
+    private int calcExperience(int level) {
+        int xp = 7 + (int) Math.floor(level * 3.5);
+        return level > 0 ? xp + calcExperience(level - 1) : xp;
     }
     
 }
