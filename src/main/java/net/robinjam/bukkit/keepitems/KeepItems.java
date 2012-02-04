@@ -26,7 +26,7 @@ public class KeepItems extends JavaPlugin implements Listener {
     
     @Override
     public void onDisable() {
-        // When the plugin is disabled, drop all held items
+        // When the plugin is disabled, drop all managed items and clear the list
         for (Death death : deaths.values()) {
             death.drop();
         }
@@ -47,9 +47,9 @@ public class KeepItems extends JavaPlugin implements Listener {
             death.drop();
         
         // Register the death event
-        deaths.put(player, new Death(player.getLocation(), event.getDrops(), calcExperience(player.getLevel() - 1)));
+        deaths.put(player, new Death(player.getLocation(), event.getDrops(), calcExperience(player.getLevel())));
         
-        // Don't drop any items
+        // Don't drop any items or experience
         event.getDrops().clear();
         event.setDroppedExp(0);
     }
@@ -58,14 +58,24 @@ public class KeepItems extends JavaPlugin implements Listener {
     public void onPlayerRespawn(final PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         
+        // If the player has a death on record, drop the items and experience at their respawn location
         Death death = deaths.remove(player);
         if (death != null)
             death.drop(event.getRespawnLocation());
     }
-
+    
+    /**
+     * Calculates the total amount of experience required to reach the given level from level 0.
+     * 
+     * @param level The level for which to calculate the required experience
+     * @return The amount of experience required
+     */
     private int calcExperience(int level) {
-        int xp = 7 + (int) Math.floor(level * 3.5);
-        return level > 0 ? xp + calcExperience(level - 1) : xp;
+        // Calculate the amount of experience required to reach this level from the previous one
+        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
+        
+        // Recursively repeat until we reach level 1
+        return level > 1 ? xp + calcExperience(level - 1) : xp;
     }
     
 }

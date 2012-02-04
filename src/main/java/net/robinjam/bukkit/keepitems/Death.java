@@ -17,13 +17,20 @@ public class Death {
     private List<ItemStack> drops;
     private int experience;
     
+    /**
+     * @param location The location at which the player died
+     * @param drops The items that would have been dropped (a deep copy of this parameter is made automatically)
+     * @param experience The amount of experience the player had when they died
+     */
     public Death(Location location, List<ItemStack> drops, int experience) {
         this.location = location;
         this.drops = new ArrayList<ItemStack>();
+        this.experience = experience;
+        
+        // Create a deep copy of the drop list
         for (ItemStack is : drops) {
             this.drops.add(is.clone());
         }
-        this.experience = experience;
     }
     
     /**
@@ -39,6 +46,7 @@ public class Death {
     public void drop(Location loc) {
         for (ItemStack is : drops)
             loc.getWorld().dropItem(loc, is);
+        
         (loc.getWorld().spawn(loc, ExperienceOrb.class)).setExperience(experience);
     }
     
