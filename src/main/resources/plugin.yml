@@ -1,0 +1,4 @@
+name: KeepItems
+main: net.robinjam.bukkit.keepitems.KeepItems
+version: ${project.version}
+author: robinjam
