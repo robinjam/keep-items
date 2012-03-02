@@ -1,6 +1,8 @@
 package net.robinjam.bukkit.keepitems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -46,12 +49,29 @@ public class KeepItems extends JavaPlugin implements Listener {
         if (death != null)
             death.drop();
         
-        // Register the death event
-        deaths.put(player, new Death(player.getLocation(), event.getDrops(), calcExperience(player.getLevel())));
+        List<ItemStack> drops = new ArrayList<ItemStack>();
+        int experience = 0;
         
-        // Don't drop any items or experience
-        event.getDrops().clear();
-        event.setDroppedExp(0);
+        if (player.hasPermission("keep-items.items")) {
+            // Create a deep copy of the drop list
+            for (ItemStack is : event.getDrops()) {
+                drops.add(is.clone());
+            }
+            
+            // Don't drop any items at the death location
+            event.getDrops().clear();
+        }
+        
+        if (player.hasPermission("keep-items.experience")) {
+            // Calculate the amount of experience to drop by rounding down the player's current experience
+            experience = calcExperience(player.getLevel());
+            
+            // Don't drop any experience at the death location
+            event.setDroppedExp(0);
+        }
+        
+        // Register the death event
+        deaths.put(player, new Death(player.getLocation(), drops, experience));
     }
     
     @EventHandler(priority = EventPriority.HIGH)
