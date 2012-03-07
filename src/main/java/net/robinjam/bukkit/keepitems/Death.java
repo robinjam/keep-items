@@ -1,8 +1,10 @@
 package net.robinjam.bukkit.keepitems;
 
-import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -12,37 +14,71 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Death {
     
+    private KeepItems plugin;
     private Location location;
-    private List<ItemStack> drops;
-    private int experience;
+    private ItemStack[] inventoryContents;
+    private ItemStack[] armorContents;
+    private int level;
     
     /**
      * @param location The location at which the player died
-     * @param drops The items that would have been dropped
-     * @param experience The amount of experience the player had when they died
+     * @param inventoryContents The contents of the player's inventory (a shallow copy of this parameter is automatically made)
+     * @param armorContents The armour the player was wearing when they died (a shallow copy of this parameter is automatically made)
+     * @param level The player's current experience level
      */
-    public Death(Location location, List<ItemStack> drops, int experience) {
+    public Death(KeepItems plugin, Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int level) {
+        this.plugin = plugin;
         this.location = location;
-        this.drops = drops;
-        this.experience = experience;
+        this.inventoryContents = inventoryContents.clone();
+        this.armorContents = armorContents.clone();
+        this.level = level;
     }
     
     /**
      * Drops every item held by this instance, at the location where the player died.
      */
     public void drop() {
-        drop(location);
+        for (ItemStack is : inventoryContents)
+            if (is != null && is.getType() != Material.AIR)
+                location.getWorld().dropItem(location, is);
+        
+        for (ItemStack is : armorContents)
+            if (is != null && is.getType() != Material.AIR)
+                location.getWorld().dropItem(location, is);
+        
+        if (level > 0)
+            (location.getWorld().spawn(location, ExperienceOrb.class)).setExperience(calcExperience(level));
     }
     
     /**
-     * Drops every item held by this instance, at the given location.
+     * Gives every item held by this instance to the given player.
+     * 
+     * @param player The player to give the items and experience to
      */
-    public void drop(Location loc) {
-        for (ItemStack is : drops)
-            loc.getWorld().dropItem(loc, is);
+    public void give(final Player player) {
+        player.getInventory().setContents(inventoryContents);
+        player.getInventory().setArmorContents(armorContents);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+
+            public void run() {
+                player.setLevel(level);
+            }
+            
+        });
+    }
+    
+    /**
+     * Calculates the total amount of experience required to reach the given level from level 0.
+     * 
+     * @param level The level for which to calculate the required experience
+     * @return The amount of experience required
+     */
+    private int calcExperience(int level) {
+        // Calculate the amount of experience required to reach this level from the previous one
+        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
         
-        if (experience > 0)
-            (loc.getWorld().spawn(loc, ExperienceOrb.class)).setExperience(experience);
+        // Recursively repeat until we reach level 1
+        return level > 1 ? xp + calcExperience(level - 1) : xp;
     }
     
 }

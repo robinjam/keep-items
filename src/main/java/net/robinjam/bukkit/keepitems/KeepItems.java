@@ -49,14 +49,13 @@ public class KeepItems extends JavaPlugin implements Listener {
         if (death != null)
             death.drop();
         
-        List<ItemStack> drops = new ArrayList<ItemStack>();
-        int experience = 0;
+        ItemStack[] inventoryContents = new ItemStack[0];
+        ItemStack[] armorContents = new ItemStack[0];
+        int level = 0;
         
         if (player.hasPermission("keep-items.items")) {
-            // Create a deep copy of the drop list
-            for (ItemStack is : event.getDrops()) {
-                drops.add(is.clone());
-            }
+            inventoryContents = player.getInventory().getContents();
+            armorContents = player.getInventory().getArmorContents();
             
             // Don't drop any items at the death location
             event.getDrops().clear();
@@ -64,14 +63,14 @@ public class KeepItems extends JavaPlugin implements Listener {
         
         if (player.hasPermission("keep-items.experience")) {
             // Calculate the amount of experience to drop by rounding down the player's current experience
-            experience = calcExperience(player.getLevel());
+            level = player.getLevel();
             
             // Don't drop any experience at the death location
             event.setDroppedExp(0);
         }
         
         // Register the death event
-        deaths.put(player, new Death(player.getLocation(), drops, experience));
+        deaths.put(player, new Death(this, player.getLocation(), inventoryContents, armorContents, level));
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -81,21 +80,7 @@ public class KeepItems extends JavaPlugin implements Listener {
         // If the player has a death on record, drop the items and experience at their respawn location
         Death death = deaths.remove(player);
         if (death != null)
-            death.drop(event.getRespawnLocation());
-    }
-    
-    /**
-     * Calculates the total amount of experience required to reach the given level from level 0.
-     * 
-     * @param level The level for which to calculate the required experience
-     * @return The amount of experience required
-     */
-    private int calcExperience(int level) {
-        // Calculate the amount of experience required to reach this level from the previous one
-        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
-        
-        // Recursively repeat until we reach level 1
-        return level > 1 ? xp + calcExperience(level - 1) : xp;
+            death.give(player);
     }
     
 }
