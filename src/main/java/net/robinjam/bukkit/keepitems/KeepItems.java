@@ -1,8 +1,6 @@
 package net.robinjam.bukkit.keepitems;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,7 +60,6 @@ public class KeepItems extends JavaPlugin implements Listener {
         }
         
         if (player.hasPermission("keep-items.experience")) {
-            // Calculate the amount of experience to drop by rounding down the player's current experience
             level = player.getLevel();
             
             // Don't drop any experience at the death location

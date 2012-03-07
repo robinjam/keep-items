@@ -58,6 +58,8 @@ public class Death {
     public void give(final Player player) {
         player.getInventory().setContents(inventoryContents);
         player.getInventory().setArmorContents(armorContents);
+        
+        // Player#setLevel(int) doesn't work during the respawn event, so schedule it to run after the player has respawned
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
             public void run() {
