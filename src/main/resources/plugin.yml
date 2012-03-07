@@ -4,17 +4,17 @@ version: ${project.version}
 author: robinjam
 
 permissions:
-  keepitems.*:
+  keep-items.*:
     description: Allows the player to keep both their experience and their items upon death
     default: op
     children:
       keepitems.items: true
       keepitems.experience: true
   
-  keepitems.items:
+  keep-items.items:
     description: Allows the player to keep their items upon death
     default: true
   
-  keepitems.experience:
+  keep-items.experience:
     description: Allows the player to keep their experience upon death
     default: true
