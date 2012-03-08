@@ -13,8 +13,8 @@ permissions:
   
   keep-items.items:
     description: Allows the player to keep their items upon death
-    default: true
+    default: false
   
   keep-items.experience:
     description: Allows the player to keep their experience upon death
-    default: true
+    default: false
