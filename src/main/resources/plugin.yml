@@ -10,6 +10,7 @@ permissions:
     children:
       keep-items.items: true
       keep-items.experience: true
+      keep-items.progress: true
   
   keep-items.items:
     description: Allows the player to keep their items upon death
@@ -17,4 +18,8 @@ permissions:
   
   keep-items.experience:
     description: Allows the player to keep their experience upon death
+    default: false
+  
+  keep-items.progress:
+    description: Allows the player to keep their progress towards the next level upon death (requires keep-items.experience)
     default: false

@@ -49,7 +49,7 @@ public class KeepItems extends JavaPlugin implements Listener {
         
         ItemStack[] inventoryContents = new ItemStack[0];
         ItemStack[] armorContents = new ItemStack[0];
-        int level = 0;
+        int experience = 0;
         
         if (player.hasPermission("keep-items.items")) {
             inventoryContents = player.getInventory().getContents();
@@ -60,14 +60,17 @@ public class KeepItems extends JavaPlugin implements Listener {
         }
         
         if (player.hasPermission("keep-items.experience")) {
-            level = player.getLevel();
+            if (player.hasPermission("keep-items.progress"))
+                experience = player.getTotalExperience();
+            else
+                experience = calcExperience(player.getLevel());
             
             // Don't drop any experience at the death location
             event.setDroppedExp(0);
         }
         
         // Register the death event
-        deaths.put(player, new Death(this, player.getLocation(), inventoryContents, armorContents, level));
+        deaths.put(player, new Death(this, player.getLocation(), inventoryContents, armorContents, experience));
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -78,6 +81,20 @@ public class KeepItems extends JavaPlugin implements Listener {
         Death death = deaths.remove(player);
         if (death != null)
             death.give(player);
+    }
+        
+    /**
+     * Calculates the total amount of experience required to reach the given level from level 0.
+     * 
+     * @param level The level for which to calculate the required experience
+     * @return The amount of experience required
+     */
+    private int calcExperience(int level) {
+        // Calculate the amount of experience required to reach this level from the previous one
+        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
+        
+        // Recursively repeat until we reach level 1
+        return level > 1 ? xp + calcExperience(level - 1) : xp;
     }
     
 }

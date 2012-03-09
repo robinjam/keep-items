@@ -18,20 +18,20 @@ public class Death {
     private Location location;
     private ItemStack[] inventoryContents;
     private ItemStack[] armorContents;
-    private int level;
+    private int experience;
     
     /**
      * @param location The location at which the player died
      * @param inventoryContents The contents of the player's inventory (a shallow copy of this parameter is automatically made)
      * @param armorContents The armour the player was wearing when they died (a shallow copy of this parameter is automatically made)
-     * @param level The player's current experience level
+     * @param experience The player's current experience
      */
-    public Death(KeepItems plugin, Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int level) {
+    public Death(KeepItems plugin, Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int experience) {
         this.plugin = plugin;
         this.location = location;
         this.inventoryContents = inventoryContents.clone();
         this.armorContents = armorContents.clone();
-        this.level = level;
+        this.experience = experience;
     }
     
     /**
@@ -46,8 +46,8 @@ public class Death {
             if (is != null && is.getType() != Material.AIR)
                 location.getWorld().dropItem(location, is);
         
-        if (level > 0)
-            (location.getWorld().spawn(location, ExperienceOrb.class)).setExperience(calcExperience(level));
+        if (experience > 0)
+            (location.getWorld().spawn(location, ExperienceOrb.class)).setExperience(experience);
     }
     
     /**
@@ -63,24 +63,11 @@ public class Death {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
             public void run() {
-                player.setLevel(level);
+                System.out.println(experience);
+                player.giveExp(experience);
             }
             
         });
-    }
-    
-    /**
-     * Calculates the total amount of experience required to reach the given level from level 0.
-     * 
-     * @param level The level for which to calculate the required experience
-     * @return The amount of experience required
-     */
-    private int calcExperience(int level) {
-        // Calculate the amount of experience required to reach this level from the previous one
-        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
-        
-        // Recursively repeat until we reach level 1
-        return level > 1 ? xp + calcExperience(level - 1) : xp;
     }
     
 }
