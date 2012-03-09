@@ -63,7 +63,6 @@ public class Death {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
             public void run() {
-                System.out.println(experience);
                 player.giveExp(experience);
             }
             

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.robinjam.bukkit</groupId>
     <artifactId>keepitems</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <name>KeepItems</name>
     <url>http://www.robinjam.net</url>
     
