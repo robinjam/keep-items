@@ -61,7 +61,7 @@ public class KeepItems extends JavaPlugin implements Listener {
         
         if (player.hasPermission("keep-items.experience")) {
             if (player.hasPermission("keep-items.progress"))
-                experience = player.getTotalExperience();
+                experience = calcExperience(player.getLevel(), player.getExp());
             else
                 experience = calcExperience(player.getLevel());
             
@@ -82,7 +82,7 @@ public class KeepItems extends JavaPlugin implements Listener {
         if (death != null)
             death.give(player);
     }
-        
+    
     /**
      * Calculates the total amount of experience required to reach the given level from level 0.
      * 
@@ -90,11 +90,23 @@ public class KeepItems extends JavaPlugin implements Listener {
      * @return The amount of experience required
      */
     private int calcExperience(int level) {
+        return calcExperience(level, 0.0f);
+    }
+        
+    /**
+     * Calculates the total amount of experience required to reach the given level from level 0.
+     * 
+     * @param level The level for which to calculate the required experience
+     * @param exp The player's progress towards the next level
+     * @return The amount of experience required
+     */
+    private int calcExperience(int level, double exp) {
         // Calculate the amount of experience required to reach this level from the previous one
         int xp = 7 + (int) Math.floor((level - 1) * 3.5);
+        xp += (int)((7 + (int) Math.floor(level * 3.5)) * exp);
         
         // Recursively repeat until we reach level 1
-        return level > 1 ? xp + calcExperience(level - 1) : xp;
+        return level > 1 ? xp + calcExperience(level - 1, 0.0f) : xp;
     }
     
 }
