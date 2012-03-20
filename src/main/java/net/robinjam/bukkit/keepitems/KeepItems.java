@@ -101,12 +101,14 @@ public class KeepItems extends JavaPlugin implements Listener {
      * @return The amount of experience required
      */
     private int calcExperience(int level, double exp) {
-        // Calculate the amount of experience required to reach this level from the previous one
-        int xp = 7 + (int) Math.floor((level - 1) * 3.5);
-        xp += (int)((7 + (int) Math.floor(level * 3.5)) * exp);
+        int xp = (int)((7 + (int) Math.floor(level * 3.5)) * exp);
         
-        // Recursively repeat until we reach level 1
-        return level > 1 ? xp + calcExperience(level - 1, 0.0f) : xp;
+        while (level > 1) {
+            // Calculate the amount of experience required to reach this level from the previous one
+            xp += 7 + (int) Math.floor((--level) * 3.5);
+        }
+        
+        return xp;
     }
     
 }
