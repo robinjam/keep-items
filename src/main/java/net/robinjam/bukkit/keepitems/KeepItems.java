@@ -2,13 +2,17 @@ package net.robinjam.bukkit.keepitems;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -23,6 +27,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
+		registerPermissions();
 	}
 
 	@Override
@@ -34,6 +39,34 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 
 		deaths.clear();
+	}
+
+	/**
+	 * Registers the additional dynamic permissions required by this plugin,
+	 * which cannot be included in the plugin.yml file.
+	 */
+	public void registerPermissions() {
+		Map<String, Boolean> children = new HashMap<String, Boolean>();
+
+		// Register keep-items.cause.<type> for each damage cause
+		for (DamageCause cause : DamageCause.values()) {
+			Permission p = new Permission("keep-items.cause."
+					+ cause.name().toLowerCase(),
+					"Allows the user to keep their items and experience when they are killed by "
+							+ cause.name().toLowerCase(),
+					PermissionDefault.FALSE);
+			getServer().getPluginManager().addPermission(p);
+			children.put(p.getName(), true);
+		}
+
+		// Register keep-items.cause.*
+		getServer()
+				.getPluginManager()
+				.addPermission(
+						new Permission(
+								"keep-items.cause.*",
+								"Allows the player to keep their items and experience when they die for any reason.",
+								PermissionDefault.TRUE, children));
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -48,6 +81,21 @@ public class KeepItems extends JavaPlugin implements Listener {
 		Death death = deaths.get(player);
 		if (death != null)
 			death.drop();
+
+		// Check if the player has permission for this death cause
+		String damageCause = player.getLastDamageCause().getCause().name()
+				.toLowerCase();
+		if (!player.hasPermission("keep-items.cause." + damageCause)) {
+			System.out
+					.println("Player "
+							+ player.getName()
+							+ " was killed by "
+							+ damageCause
+							+ ", but does not have permission to keep their items. Hint: give them the 'keep-items.cause."
+							+ damageCause
+							+ "' or 'keep-items.cause.*' permission.");
+			return;
+		}
 
 		ItemStack[] inventoryContents = new ItemStack[0];
 		ItemStack[] armorContents = new ItemStack[0];
