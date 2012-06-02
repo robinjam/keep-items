@@ -6,7 +6,7 @@ author: robinjam
 permissions:
   keep-items.*:
     description: Allows the player to keep both their experience and their items upon death
-    default: op
+    default: true
     children:
       keep-items.items: true
       keep-items.experience: true
