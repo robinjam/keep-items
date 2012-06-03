@@ -2,6 +2,7 @@ package net.robinjam.bukkit.keepitems;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,9 +25,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class KeepItems extends JavaPlugin implements Listener {
 	
 	private Map<Player, Death> deaths = new HashMap<Player, Death>();
+	private Random random = new Random();
 	
 	@Override
 	public void onEnable() {
+		// Load config.yml
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+		
+		// Register events and permissions
 		getServer().getPluginManager().registerEvents(this, this);
 		registerPermissions();
 	}
@@ -105,7 +112,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		for (int i = 0; i < inventoryContents.length; i++) {
 			ItemStack is = inventoryContents[i];
 			
-			if (player.hasPermission("keep-items.item." + is.getTypeId()))
+			if (is != null && player.hasPermission("keep-items.item." + is.getTypeId()) && random.nextDouble() > getConfig().getDouble("drop-chance"))
 				event.getDrops().remove(is);
 			else
 				inventoryContents[i] = null;

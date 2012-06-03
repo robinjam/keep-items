@@ -1,0 +1,5 @@
+# Probability of any given item stack in a player's inventory dropping when they die.
+# 0 = Players will keep all their item stacks when they die (if they have sufficient permissions).
+# 0.5 = Players will keep (on average) half their item stacks when they die.
+# 1 = Players will lose all their item stacks when they die.
+drop-chance: 0
