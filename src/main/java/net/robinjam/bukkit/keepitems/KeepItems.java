@@ -106,7 +106,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		Player player = event.getPlayer();
 		
-		// If the player has a death on record, drop the items and experience at their respawn location
+		// If the player has a death on record, return the items to their inventory
 		Death death = deaths.remove(player);
 		if (death != null)
 			death.give(player);
