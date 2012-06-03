@@ -90,10 +90,8 @@ public class KeepItems extends JavaPlugin implements Listener {
 		
 		// Check if the player has permission for this death cause
 		String damageCause = player.getLastDamageCause().getCause().name().toLowerCase();
-		if (!player.hasPermission("keep-items.cause." + damageCause)) {
-			System.out.println("Player " + player.getName() + " was killed by " + damageCause + ", but does not have permission to keep their items. Hint: give them the 'keep-items.cause." + damageCause + "' or 'keep-items.cause.*' permission.");
+		if (!player.hasPermission("keep-items.cause." + damageCause))
 			return;
-		}
 		
 		ItemStack[] inventoryContents = new ItemStack[0];
 		ItemStack[] armorContents = new ItemStack[0];
