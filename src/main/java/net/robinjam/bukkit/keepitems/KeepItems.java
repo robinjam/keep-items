@@ -3,6 +3,7 @@ package net.robinjam.bukkit.keepitems;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,7 +53,19 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 		
 		// Register keep-items.cause.*
-		getServer().getPluginManager().addPermission(new Permission("keep-items.cause.*", "Allows the player to keep their items and experience when they die for any reason.", PermissionDefault.TRUE, children));
+		getServer().getPluginManager().addPermission(new Permission("keep-items.cause.*", "Allows the player to keep their items and experience when they die for any reason", PermissionDefault.TRUE, children));
+		
+		children.clear();
+		
+		// Register keep-items.item.<id> for each item type
+		for (Material type : Material.values()) {
+			Permission p = new Permission("keep-items.item." + type.getId(), "Allows the user to keep " + type.toString(), PermissionDefault.FALSE);
+			getServer().getPluginManager().addPermission(p);
+			children.put(p.getName(), true);
+		}
+		
+		// Register keep-items.item.*
+		getServer().getPluginManager().addPermission(new Permission("keep-items.item.*", "Allows the player to keep any type of item", PermissionDefault.TRUE, children));
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
@@ -80,12 +93,22 @@ public class KeepItems extends JavaPlugin implements Listener {
 		int level = 0;
 		float exp = 0;
 		
-		if (player.hasPermission("keep-items.items")) {
-			inventoryContents = player.getInventory().getContents();
+		if (player.hasPermission("keep-items.armor")) {
 			armorContents = player.getInventory().getArmorContents();
 			
-			// Don't drop any items at the death location
-			event.getDrops().clear();
+			for (ItemStack is : armorContents) {
+				event.getDrops().remove(is);
+			}
+		}
+		
+		inventoryContents = player.getInventory().getContents();
+		for (int i = 0; i < inventoryContents.length; i++) {
+			ItemStack is = inventoryContents[i];
+			
+			if (player.hasPermission("keep-items.item." + is.getTypeId()))
+				event.getDrops().remove(is);
+			else
+				inventoryContents[i] = null;
 		}
 		
 		if (player.hasPermission("keep-items.level")) {
