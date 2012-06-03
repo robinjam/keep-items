@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Death {
 	
-	private final KeepItems plugin;
 	private final Location location;
 	private final ItemStack[] inventoryContents;
 	private final ItemStack[] armorContents;
@@ -26,8 +25,7 @@ public class Death {
 	 * @param armorContents The armour the player was wearing when they died (a shallow copy of this parameter is automatically made).
 	 * @param experience The player's current experience.
 	 */
-	public Death(KeepItems plugin, Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int experience) {
-		this.plugin = plugin;
+	public Death(Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int experience) {
 		this.location = location;
 		this.inventoryContents = inventoryContents.clone();
 		this.armorContents = armorContents.clone();
@@ -60,7 +58,7 @@ public class Death {
 		player.getInventory().setArmorContents(armorContents);
 		
 		// Player#giveExp(int) doesn't work during the respawn event, so schedule it to run after the player has respawned
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("KeepItems"), new Runnable() {
 			
 			public void run() {
 				player.giveExp(experience);

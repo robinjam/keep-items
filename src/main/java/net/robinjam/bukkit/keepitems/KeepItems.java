@@ -98,7 +98,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 		
 		// Register the death event
-		deaths.put(player, new Death(this, player.getLocation(), inventoryContents, armorContents, experience));
+		deaths.put(player, new Death(player.getLocation(), inventoryContents, armorContents, experience));
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
