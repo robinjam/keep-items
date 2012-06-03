@@ -77,7 +77,8 @@ public class KeepItems extends JavaPlugin implements Listener {
 		
 		ItemStack[] inventoryContents = new ItemStack[0];
 		ItemStack[] armorContents = new ItemStack[0];
-		int experience = 0;
+		int level = 0;
+		float exp = 0;
 		
 		if (player.hasPermission("keep-items.items")) {
 			inventoryContents = player.getInventory().getContents();
@@ -87,18 +88,18 @@ public class KeepItems extends JavaPlugin implements Listener {
 			event.getDrops().clear();
 		}
 		
-		if (player.hasPermission("keep-items.experience")) {
+		if (player.hasPermission("keep-items.level")) {
+			level = player.getLevel();
+			
 			if (player.hasPermission("keep-items.progress"))
-				experience = calcExperience(player.getLevel(), player.getExp());
-			else
-				experience = calcExperience(player.getLevel());
+				exp = player.getExp();
 			
 			// Don't drop any experience at the death location
 			event.setDroppedExp(0);
 		}
 		
 		// Register the death event
-		deaths.put(player, new Death(player.getLocation(), inventoryContents, armorContents, experience));
+		deaths.put(player, new Death(player.getLocation(), inventoryContents, armorContents, event.getDroppedExp(), level, exp));
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
@@ -109,34 +110,6 @@ public class KeepItems extends JavaPlugin implements Listener {
 		Death death = deaths.remove(player);
 		if (death != null)
 			death.give(player);
-	}
-	
-	/**
-	 * Calculates the total amount of experience required to reach the given level from level 0.
-	 * 
-	 * @param level The level for which to calculate the required experience.
-	 * @return The amount of experience required.
-	 */
-	private int calcExperience(int level) {
-		return calcExperience(level, 0.0f);
-	}
-	
-	/**
-	 * Calculates the total amount of experience required to reach the given level from level 0.
-	 * 
-	 * @param level The level for which to calculate the required experience.
-	 * @param exp The player's progress towards the next level.
-	 * @return The amount of experience required.
-	 */
-	private int calcExperience(int level, double exp) {
-		int xp = (int) ((7 + (int) Math.floor(level * 3.5)) * exp);
-		
-		while (level > 1) {
-			// Calculate the amount of experience required to reach this level from the previous one
-			xp += 7 + (int) Math.floor((--level) * 3.5);
-		}
-		
-		return xp;
 	}
 	
 }

@@ -5,21 +5,21 @@ author: robinjam
 
 permissions:
   keep-items.*:
-    description: Allows the player to keep both their experience and their items upon death
+    description: Allows the player to keep both their total experience and their items upon death
     default: true
     children:
       keep-items.items: true
-      keep-items.experience: true
+      keep-items.level: true
       keep-items.progress: true
   
   keep-items.items:
     description: Allows the player to keep their items upon death
     default: false
   
-  keep-items.experience:
-    description: Allows the player to keep their experience upon death
+  keep-items.level:
+    description: Allows the player to keep their current level upon death
     default: false
   
   keep-items.progress:
-    description: Allows the player to keep their progress towards the next level upon death (requires keep-items.experience)
+    description: Allows the player to keep their progress towards the next level upon death (requires keep-items.level)
     default: false

@@ -17,19 +17,25 @@ public class Death {
 	private final Location location;
 	private final ItemStack[] inventoryContents;
 	private final ItemStack[] armorContents;
-	private final int experience;
+	private final int droppedExp;
+	private final int level;
+	private final float exp;
 	
 	/**
 	 * @param location The location at which the player died.
 	 * @param inventoryContents The contents of the player's inventory (a shallow copy of this parameter is automatically made).
 	 * @param armorContents The armour the player was wearing when they died (a shallow copy of this parameter is automatically made).
-	 * @param experience The player's current experience.
+	 * @param droppedExp The amount of experience that would have dropped at the player's death point.
+	 * @param level The player's current level.
+	 * @param exp The player's progress towards the next level.
 	 */
-	public Death(Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int experience) {
+	public Death(Location location, ItemStack[] inventoryContents, ItemStack[] armorContents, int droppedExp, int level, float exp) {
 		this.location = location;
 		this.inventoryContents = inventoryContents.clone();
 		this.armorContents = armorContents.clone();
-		this.experience = experience;
+		this.droppedExp = droppedExp;
+		this.level = level;
+		this.exp = exp;
 	}
 	
 	/**
@@ -44,8 +50,8 @@ public class Death {
 			if (is != null && is.getType() != Material.AIR)
 				location.getWorld().dropItem(location, is);
 		
-		if (experience > 0)
-			(location.getWorld().spawn(location, ExperienceOrb.class)).setExperience(experience);
+		if (droppedExp > 0)
+			(location.getWorld().spawn(location, ExperienceOrb.class)).setExperience(droppedExp);
 	}
 	
 	/**
@@ -57,11 +63,12 @@ public class Death {
 		player.getInventory().setContents(inventoryContents);
 		player.getInventory().setArmorContents(armorContents);
 		
-		// Player#giveExp(int) doesn't work during the respawn event, so schedule it to run after the player has respawned
+		// Players cannot be given experience during the respawn event, so schedule this to run after the player has respawned
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("KeepItems"), new Runnable() {
 			
 			public void run() {
-				player.giveExp(experience);
+				player.setLevel(level);
+				player.setExp(exp);
 			}
 			
 		});
