@@ -10,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
@@ -76,12 +76,8 @@ public class KeepItems extends JavaPlugin implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
-	public void onEntityDeath(final EntityDeathEvent event) {
-		// Skip if the entity that died is not a player
-		if (!(event.getEntity() instanceof Player))
-			return;
-		
-		Player player = (Player) event.getEntity();
+	public void onPlayerDeath(final PlayerDeathEvent event) {
+		Player player = event.getEntity();
 		
 		// If the player already has a death on record, drop the items
 		Death death = deaths.get(player);
