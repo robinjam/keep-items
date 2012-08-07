@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -24,7 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class KeepItems extends JavaPlugin implements Listener {
 	
-	private Map<Player, Death> deaths = new HashMap<Player, Death>();
 	private Random random = new Random();
 	
 	@Override
@@ -36,14 +35,6 @@ public class KeepItems extends JavaPlugin implements Listener {
 		// Register events and permissions
 		getServer().getPluginManager().registerEvents(this, this);
 		registerPermissions();
-	}
-	
-	@Override
-	public void onDisable() {
-		for (Death death : deaths.values())
-			death.drop();
-		
-		deaths.clear();
 	}
 	
 	/**
@@ -77,63 +68,59 @@ public class KeepItems extends JavaPlugin implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerDeath(final PlayerDeathEvent event) {
-		Player player = event.getEntity();
-		
-		// If the player already has a death on record, drop the items
-		Death death = deaths.get(player);
-		if (death != null)
-			death.drop();
+		final Player player = event.getEntity();
 		
 		// Check if the player has permission for this death cause
 		String damageCause = player.getLastDamageCause().getCause().name().toLowerCase();
 		if (!player.hasPermission("keep-items.cause." + damageCause))
 			return;
 		
-		ItemStack[] inventoryContents = new ItemStack[0];
-		ItemStack[] armorContents = new ItemStack[0];
-		int level = 0;
-		float exp = 0;
-		
-		if (player.hasPermission("keep-items.armor")) {
-			armorContents = player.getInventory().getArmorContents();
+		// Experience
+		if (player.hasPermission("keep-items.level")) {
+			if (player.hasPermission("keep-items.progress"))
+				event.setKeepLevel(true);
+			else
+				event.setNewLevel(player.getLevel());
 			
-			for (ItemStack is : armorContents) {
+			event.setDroppedExp(0);
+		}
+		
+		// Armour
+		if (player.hasPermission("keep-items.armor")) {
+			final ItemStack[] armor = player.getInventory().getArmorContents();
+			
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+
+				@Override
+				public void run() {
+					player.getInventory().setArmorContents(armor);
+				}
+				
+			});
+			
+			for (ItemStack is : armor) {
 				event.getDrops().remove(is);
 			}
 		}
 		
-		inventoryContents = player.getInventory().getContents();
-		for (int i = 0; i < inventoryContents.length; i++) {
-			ItemStack is = inventoryContents[i];
+		// Items
+		final ItemStack[] inventory = player.getInventory().getContents();
+		for (int i = 0; i < inventory.length; i++) {
+			ItemStack is = inventory[i];
 			
 			if (is != null && player.hasPermission("keep-items.item." + is.getTypeId()) && random.nextDouble() > getConfig().getDouble("drop-chance"))
 				event.getDrops().remove(is);
 			else
-				inventoryContents[i] = null;
+				inventory[i] = null;
 		}
-		
-		if (player.hasPermission("keep-items.level")) {
-			level = player.getLevel();
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+
+			@Override
+			public void run() {
+				player.getInventory().setContents(inventory);
+			}
 			
-			if (player.hasPermission("keep-items.progress"))
-				exp = player.getExp();
-			
-			// Don't drop any experience at the death location
-			event.setDroppedExp(0);
-		}
-		
-		// Register the death event
-		deaths.put(player, new Death(player.getLocation(), inventoryContents, armorContents, event.getDroppedExp(), level, exp));
-	}
-	
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onPlayerRespawn(final PlayerRespawnEvent event) {
-		Player player = event.getPlayer();
-		
-		// If the player has a death on record, return the items to their inventory
-		Death death = deaths.remove(player);
-		if (death != null)
-			death.give(player);
+		});
 	}
 	
 }
