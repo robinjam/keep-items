@@ -5,11 +5,13 @@ import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -71,8 +73,12 @@ public class KeepItems extends JavaPlugin implements Listener {
 		final Player player = event.getEntity();
 		
 		// Check if the player has permission for this death cause
-		String damageCause = player.getLastDamageCause().getCause().name().toLowerCase();
-		if (!player.hasPermission("keep-items.cause." + damageCause))
+		EntityDamageEvent e = player.getLastDamageCause();
+		if (e == null) {
+			System.err.println("[KeepItems] Player " + player.getName() + " died due to an unknown cause. It is therefore impossible to determine whether or not they have permission to keep their items. Their items and experience will be dropped at their death location (" + formatLocation(player.getLocation()) + ").");
+			return;
+		}
+		if (!player.hasPermission("keep-items.cause." + e.getCause().name().toLowerCase()))
 			return;
 		
 		// Experience
@@ -121,6 +127,16 @@ public class KeepItems extends JavaPlugin implements Listener {
 			}
 			
 		});
+	}
+	
+	/**
+	 * Creates a formatted string representing a Location.
+	 * 
+	 * @param location The location to format.
+	 * @return A string of the format world@x,y,z.
+	 */
+	private String formatLocation(Location location) {
+		return location.getWorld().getName() + "@" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ();
 	}
 	
 }
