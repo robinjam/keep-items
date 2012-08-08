@@ -7,8 +7,10 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -96,8 +98,19 @@ public class KeepItems extends JavaPlugin implements Listener {
 			return;
 		
 		// If the player was killed by an entity, check whether they have permission for that entity
-		if (e instanceof EntityDamageByEntityEvent && !player.hasPermission("keep-items.entity." + ((EntityDamageByEntityEvent) e).getDamager().getType().name().toLowerCase()))
-			return;
+		if (e instanceof EntityDamageByEntityEvent) {
+			Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
+			
+			// If the player was killed by a projectile, try to work out which entity shot it
+			if (damager instanceof Projectile) {
+				Entity shooter = ((Projectile) damager).getShooter();
+				if (shooter != null)
+					damager = shooter;
+			}
+			
+			if (!player.hasPermission("keep-items.entity." + damager.getType().name().toLowerCase()))
+				return;
+		}
 		
 		// Experience
 		if (player.hasPermission("keep-items.level")) {
