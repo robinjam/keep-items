@@ -57,7 +57,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 		
 		// Register keep-items.cause.*
-		getServer().getPluginManager().addPermission(new Permission("keep-items.cause.*", "Allows the player to keep their items and experience when they die for any reason", PermissionDefault.TRUE, children));
+		getServer().getPluginManager().addPermission(new Permission("keep-items.cause.*", "Allows the player to keep their items and experience when they die for any reason", PermissionDefault.FALSE, children));
 		
 		children.clear();
 		
@@ -69,7 +69,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 		
 		// Register keep-items.entity.*
-		getServer().getPluginManager().addPermission(new Permission("keep-items.entity.*", "Allows the player to keep their items and experience when they are killed by any entity type", PermissionDefault.TRUE, children));
+		getServer().getPluginManager().addPermission(new Permission("keep-items.entity.*", "Allows the player to keep their items and experience when they are killed by any entity type", PermissionDefault.FALSE, children));
 		
 		children.clear();
 		
@@ -81,7 +81,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		}
 		
 		// Register keep-items.item.*
-		getServer().getPluginManager().addPermission(new Permission("keep-items.item.*", "Allows the player to keep any type of item", PermissionDefault.TRUE, children));
+		getServer().getPluginManager().addPermission(new Permission("keep-items.item.*", "Allows the player to keep any type of item", PermissionDefault.FALSE, children));
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)

@@ -6,7 +6,7 @@ author: robinjam
 permissions:
   keep-items.*:
     description: Allows the player to keep both their level, their progress towards the next level and their armour upon death
-    default: true
+    default: false
     children:
       keep-items.armor: true
       keep-items.level: true
