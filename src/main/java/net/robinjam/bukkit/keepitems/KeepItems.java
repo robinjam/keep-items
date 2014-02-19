@@ -76,8 +76,16 @@ public class KeepItems extends JavaPlugin implements Listener {
 		// Register keep-items.item.<id> for each item type
 		for (Material type : Material.values()) {
 			Permission p = new Permission("keep-items.item." + type.getId(), "Allows the player to keep " + type.toString(), PermissionDefault.FALSE);
-			getServer().getPluginManager().addPermission(p);
-			children.put(p.getName(), true);
+			
+			try {
+				getServer().getPluginManager().addPermission(p);
+			} catch(IllegalArgumentException e) {
+				// .. ignore
+			} finally {
+				children.put(p.getName(), true);
+			}
+			
+			
 		}
 		
 		// Register keep-items.item.*
@@ -103,8 +111,8 @@ public class KeepItems extends JavaPlugin implements Listener {
 			
 			// If the player was killed by a projectile, try to work out which entity shot it
 			if (damager instanceof Projectile) {
-				Entity shooter = ((Projectile) damager).getShooter();
-				if (shooter != null)
+                Entity shooter = ((Projectile) damager).getShooter();
+                if (shooter != null)
 					damager = shooter;
 			}
 			
