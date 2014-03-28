@@ -76,6 +76,9 @@ public class KeepItems extends JavaPlugin implements Listener {
 		
 		// Register keep-items.item.<id> for each item type
 		for (Material type : Material.values()) {
+			// Locked chests and stained glass share the same item ID
+			if (type.equals(Material.LOCKED_CHEST)) break;
+			
 			Permission p = new Permission("keep-items.item." + type.getId(), "Allows the player to keep " + type.toString(), PermissionDefault.FALSE);
 			getServer().getPluginManager().addPermission(p);
 			children.put(p.getName(), true);
