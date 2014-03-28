@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.projectiles.ProjectileSource;
 
 /**
  * The main plugin class.
@@ -103,9 +104,9 @@ public class KeepItems extends JavaPlugin implements Listener {
 			
 			// If the player was killed by a projectile, try to work out which entity shot it
 			if (damager instanceof Projectile) {
-				Entity shooter = ((Projectile) damager).getShooter();
-				if (shooter != null)
-					damager = shooter;
+				ProjectileSource shooter = ((Projectile) damager).getShooter();
+				if (shooter instanceof Entity)
+					damager = (Entity) shooter;
 			}
 			
 			if (!player.hasPermission("keep-items.entity." + damager.getType().name().toLowerCase()))
