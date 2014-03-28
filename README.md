@@ -4,4 +4,4 @@ KeepItems is a [Bukkit](http://bukkit.org) plugin that allows players to keep al
 
 Compiling
 ---------
-KeepItems is packaged using [Maven](http://http://maven.apache.org/). To compile it, run `mvn package` from the terminal. You can also download development builds [here](http://ci.robinjam.net/job/KeepItems).
+KeepItems is packaged using [Maven](http://http://maven.apache.org/). To compile it, run `mvn package` from the terminal.
