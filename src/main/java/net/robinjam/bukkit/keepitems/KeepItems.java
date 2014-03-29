@@ -94,7 +94,7 @@ public class KeepItems extends JavaPlugin implements Listener {
 		
 		// Check if the player has permission for this death cause
 		EntityDamageEvent e = player.getLastDamageCause();
-		if (e == null) {
+		if (e == null && !player.hasPermission("keep-items.cause.*")) {
 			System.err.println("[KeepItems] Player " + player.getName() + " died due to an unknown cause. It is therefore impossible to determine whether or not they have permission to keep their items. Their items and experience will be dropped at their death location (" + formatLocation(player.getLocation()) + ").");
 			return;
 		}
